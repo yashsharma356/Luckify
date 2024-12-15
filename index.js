@@ -174,5 +174,11 @@ async function updateUI() {
     }
   };
   
-
-connect();
+window.onload = async () => {
+  try {
+    await connect(); // Initialize the connection when the page loads
+  } catch (error) {
+    console.error("Failed to connect:", error.message);
+    document.getElementById("status").innerText = "Failed to connect to MetaMask!";
+  }
+};
