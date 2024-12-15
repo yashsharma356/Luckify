@@ -85,13 +85,13 @@ const contractABI = [
 	}
 ];
 
-let provider, signer, contract;
+let web3, contract;
 
 async function connect() {
   if (window.ethereum) {
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    contract = new ethers.Contract(contractAddress, contractABI, signer);
+    web3 = new Web3(window.ethereum); // Initialize Web3 with MetaMask's provider
+    await window.ethereum.request({ method: "eth_requestAccounts" }); // Request account access
+    contract = new web3.eth.Contract(contractABI, contractAddress); // Initialize the contract
     await updateUI();
   } else {
     alert("MetaMask is not installed!");
@@ -99,23 +99,34 @@ async function connect() {
 }
 
 async function updateUI() {
-  const manager = await contract.manager();
-  const players = await contract.getPlayers();
-  document.getElementById("manager").innerText = `Manager: ${manager}`;
-  const playersList = document.getElementById("players");
-  playersList.innerHTML = "";
-  players.forEach((player) => {
-    const li = document.createElement("li");
-    li.innerText = player;
-    playersList.appendChild(li);
-  });
+  try {
+    const accounts = await web3.eth.getAccounts();
+    const manager = await contract.methods.manager().call();
+    const players = await contract.methods.getPlayers().call();
+    const lastWinner = await contract.methods.lastWinner().call();
+
+    document.getElementById("manager").innerText = `Manager: ${manager}`;
+    const playersList = document.getElementById("players");
+    playersList.innerHTML = "";
+    players.forEach((player) => {
+      const li = document.createElement("li");
+      li.innerText = player;
+      playersList.appendChild(li);
+    });
+
+    if (lastWinner !== "0x0000000000000000000000000000000000000000") {
+      document.getElementById("status").innerText = `Last Winner: ${lastWinner}`;
+    }
+  } catch (error) {
+    console.error("Failed to update UI:", error);
+  }
 }
 
 document.getElementById("becomeManager").onclick = async () => {
   try {
     await connect();
-    const tx = await contract.becomeManager();
-    await tx.wait();
+    const accounts = await web3.eth.getAccounts();
+    await contract.methods.becomeManager().send({ from: accounts[0] });
     document.getElementById("status").innerText = "You are now the manager!";
     await updateUI();
   } catch (error) {
@@ -126,8 +137,8 @@ document.getElementById("becomeManager").onclick = async () => {
 document.getElementById("enter").onclick = async () => {
   try {
     await connect();
-    const tx = await contract.enter({ value: ethers.utils.parseEther("0.01") });
-    await tx.wait();
+    const accounts = await web3.eth.getAccounts();
+    await contract.methods.enter().send({ from: accounts[0], value: web3.utils.toWei("0.01", "ether") });
     document.getElementById("status").innerText = "You joined as a player!";
     await updateUI();
   } catch (error) {
@@ -138,47 +149,21 @@ document.getElementById("enter").onclick = async () => {
 document.getElementById("pickWinner").onclick = async () => {
   try {
     await connect();
-    const tx = await contract.pickWinner();
-    await tx.wait();
+    const accounts = await web3.eth.getAccounts();
+    await contract.methods.pickWinner().send({ from: accounts[0] });
     document.getElementById("status").innerText = "Winner has been picked!";
     await updateUI();
   } catch (error) {
     document.getElementById("status").innerText = error.message;
   }
 };
-async function updateUI() {
-    const manager = await contract.manager();
-    const players = await contract.getPlayers();
-    const lastWinner = await contract.lastWinner(); // Fetch the last winner's address
-    document.getElementById("manager").innerText = `Manager: ${manager}`;
-    document.getElementById("players").innerHTML = "";
-    players.forEach((player) => {
-      const li = document.createElement("li");
-      li.innerText = player;
-      document.getElementById("players").appendChild(li);
-    });
-    if (lastWinner !== ethers.constants.AddressZero) {
-      document.getElementById("status").innerText = `Last Winner: ${lastWinner}`;
-    }
-  }
-  
-  document.getElementById("pickWinner").onclick = async () => {
-    try {
-      await connect();
-      const tx = await contract.pickWinner();
-      await tx.wait();
-      document.getElementById("status").innerText = "Winner has been picked!";
-      await updateUI();
-    } catch (error) {
-      document.getElementById("status").innerText = error.message;
-    }
-  };
-  
+
+// Automatically connect on page load
 window.onload = async () => {
   try {
-    await connect(); // Initialize the connection when the page loads
+    await connect();
   } catch (error) {
-    console.error("Failed to connect:", error.message);
-    document.getElementById("status").innerText = "Failed to connect to MetaMask!";
+    console.error("Failed to connect on load:", error);
   }
 };
+
