@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lottery DApp</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    /* style.css */
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #0d1b2a; /* Dark blue background */
+  color: #f4d35e; /* Yellow text color */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 0; /* Add padding at the top and bottom */
+  box-sizing: border-box;
+}
+
+.container {
+  text-align: center;
+  padding: 30px;
+  border: 2px solid #f4d35e;
+  border-radius: 10px;
+  background-color: #1b263b; /* Slightly lighter dark blue */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 90%;
+  margin: 20px 0; /* Ensure some space at the top and bottom */
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 30px;
+  color: #f4d35e;
+}
+
+p {
+  font-size: 1.5rem;
+  margin: 15px 0;
+}
+
+button {
+  font-size: 1.5rem;
+  padding: 15px 30px;
+  margin: 15px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button#becomeManager {
+  background-color: #f4d35e;
+  color: #0d1b2a;
+}
+
+button#becomeManager:hover {
+  background-color: #e5c045;
+  transform: scale(1.05);
+}
+
+button#enter {
+  background-color: #0d1b2a;
+  color: #f4d35e;
+  border: 2px solid #f4d35e;
+}
+
+button#enter:hover {
+  background-color: #1b263b;
+  transform: scale(1.05);
+}
+
+button#pickWinner {
+  background-color: #f4d35e;
+  color: #0d1b2a;
+}
+
+button#pickWinner:hover {
+  background-color: #e5c045;
+  transform: scale(1.05);
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul#players li {
+  font-size: 1.2rem;
+  background-color: #1b263b;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+#status {
+  font-size: 1.5rem;
+  margin-top: 20px;
+  font-weight: bold;
+  color: #e63946;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Luckify</h1>
+    
+    <p id="manager">Manager: Not set</p>
+    <p>Join as:</p>
+    <button id="becomeManager">Become Manager</button>
+    <button id="enter">Join as Player (0.01 Ether)</button>
+    <p>Players:</p>
+    <ul id="players"></ul>
+    <button id="pickWinner">Pick Winner (Manager Only)</button>
+    <p id="status"></p>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>
